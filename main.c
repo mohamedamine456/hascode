@@ -46,22 +46,20 @@ typedef struct		s_intersections
 	unsigned int	id_cars[1000];
 }					t_intersections;
 
-int					check_street_exist(t_cars *cars, unsigned int nb_cars, char *name)
-{
-	int		i = 0, j = 0;
+char				**streets_table;
+char				is = 0;
 
-	while (i < nb_cars)
+int					check_street_exist(char	*name)
+{
+	int		i = 0;
+
+	while(streets_table[i] != NULL)
 	{
-		j = 0;
-		while (j < cars[i].nb_path)
-		{
-			if (strcmp(name, cars[i].path[j]))
-				return(1);
-			j++;
-		}
+		if (!strcmp(streets_table[i], name))
+			return (0);
 		i++;
 	}
-	return (0);
+	return (1);
 }
 
 unsigned int		calculate_intersections(t_cars *cars, t_first_line gener)
@@ -71,51 +69,54 @@ unsigned int		calculate_intersections(t_cars *cars, t_first_line gener)
 	int				j = 0;
 	int				k = 0;
 
-	while(i < gener.nb_cars)
-	{
-		nb_inter += cars[i].nb_path;
-		i++;
-	}
-	nb_inter -= gener.nb_cars;
+	streets_table = (char **)malloc(sizeof(char *) * gener.nb_streets);
+	streets_table[is] = NULL;
+
 	i = 0;
 	while (i < gener.nb_cars)
 	{
 		j = 0;
 		while (j < cars[i].nb_path)
 		{
-			if (!check_street_exist(cars, gener.nb_cars, cars[i].path[j]))
-				nb_inter++;
-			j++;
-		}
-		i++;
-	}
-	return (nb_inter);
-}
-
-void				define_intersections(t_cars *cars, t_first_line gener, t_intersections *intersections, unsigned int inters)
-{
-	unsigned int	nb_inter = 0;
-	int				i = 0;
-	int				j = 0;
-	int				k = 0;
-
-	while (i < gener.nb_cars)
-	{
-		j = 0;
-		while (j < cars[i].nb_path)
-		{
-			if (!check_street_exist(cars, gener.nb_cars, cars[i].path[j]))
+			if (check_street_exist(cars[i].path[j]))
 			{
-				intersections[k].from = strdup(cars[i].path[j]);
-				intersections[k].id_inter = k;
-				k++;
-				nb_inter++;
+				streets_table[is] = strdup(cars[i].path[j]);
+				is++;
+				streets_table[is] = NULL;
 			}
 			j++;
 		}
 		i++;
 	}
+	while(streets_table[nb_inter] != NULL)
+		nb_inter++;
+	return (nb_inter);
 }
+
+// void				define_intersections(t_cars *cars, t_first_line gener, t_intersections *intersections, unsigned int inters)
+// {
+// 	unsigned int	nb_inter = 0;
+// 	int				i = 0;
+// 	int				j = 0;
+// 	int				k = 0;
+
+// 	while (i < gener.nb_cars)
+// 	{
+// 		j = 0;
+// 		while (j < cars[i].nb_path)
+// 		{
+// 			if (!check_street_exist(cars, gener.nb_cars, cars[i].path[j], i, j))
+// 			{
+// 				intersections[k].from = strdup(cars[i].path[j]);
+// 				intersections[k].id_inter = k;
+// 				k++;
+// 				nb_inter++;
+// 			}
+// 			j++;
+// 		}
+// 		i++;
+// 	}
+// }
 
 int 				main(int argv, char **args)
 {
@@ -180,15 +181,15 @@ int 				main(int argv, char **args)
 		}
 	}
 	output_inter = calculate_intersections(cars, gener);
-	
+	printf("%d\n", output_inter);
 	intersections = (t_intersections *)malloc(sizeof(t_intersections) * output_inter);
-	define_intersections(cars, gener, intersections, output_inter);
+	//define_intersections(cars, gener, intersections, output_inter);
 	i = 0;
-	while (i < output_inter)
+	/*while (i < output_inter)
 	{
 		printf("%10d, %30s\n", intersections[i].id_inter, intersections[i].from);
 		i++;
-	}
+	}*/
 	//printf("%d", output_inter);
 
 
